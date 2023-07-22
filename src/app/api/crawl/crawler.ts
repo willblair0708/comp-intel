@@ -11,7 +11,7 @@ class Crawler {
   private pages: Page[] = [];
   private queue: { url: string; depth: number }[] = [];
 
-  constructor(private maxDepth = 2, private maxPages = 1) { }
+  constructor(private maxDepth = 2, private maxPages = 5) { }
 
   async crawl(startUrl: string): Promise<Page[]> {
     // Add the start URL to the queue
@@ -83,6 +83,18 @@ class Crawler {
     const relativeUrls = $('a').map((_, link) => $(link).attr('href')).get() as string[];
     return relativeUrls.map(relativeUrl => new URL(relativeUrl, baseUrl).href);
   }
+}
+
+export function generateTimestampAsString(): string {
+  const now = new Date();
+  const year = now.getFullYear().toString().padStart(4, '0');
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+  const day = now.getDate().toString().padStart(2, '0');
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
 export { Crawler };

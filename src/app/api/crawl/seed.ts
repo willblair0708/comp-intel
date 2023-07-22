@@ -3,7 +3,7 @@ import { Document, MarkdownTextSplitter, RecursiveCharacterTextSplitter } from "
 import { utils as PineconeUtils, Vector } from "@pinecone-database/pinecone";
 import md5 from "md5";
 import { getPineconeClient } from "@/utils/pinecone";
-import { Crawler, Page } from "./crawler";
+import { Crawler, Page, generateTimestampAsString } from "./crawler";
 import { truncateStringByBytes } from "@/utils/truncateString"
 
 const { chunkedUpsert, createIndexIfNotExists } = PineconeUtils
@@ -29,6 +29,7 @@ async function seed(url: string, limit: number, indexName: string, options: Seed
     const crawler = new Crawler(1, limit || 100);
 
     // Crawl the given URL and get the pages
+    
     const pages = await crawler.crawl(url) as Page[];
 
     // Choose the appropriate document splitter based on the splitting method
@@ -46,7 +47,7 @@ async function seed(url: string, limit: number, indexName: string, options: Seed
     const vectors = await Promise.all(documents.flat().map(embedDocument));
 
     // Upsert vectors into the Pinecone index
-    await chunkedUpsert(index!, vectors, '', 10);
+    await chunkedUpsert(index!, vectors, 'Aircall', 10);
 
     // Return the first document
     return documents[0];
@@ -58,6 +59,7 @@ async function seed(url: string, limit: number, indexName: string, options: Seed
 
 async function embedDocument(doc: Document): Promise<Vector> {
   try {
+    const timestamp = generateTimestampAsString();
     // Generate OpenAI embeddings for the document content
     const embedding = await getEmbeddings(doc.pageContent);
 
@@ -72,7 +74,8 @@ async function embedDocument(doc: Document): Promise<Vector> {
         chunk: doc.pageContent, // The chunk of text that the vector represents
         text: doc.metadata.text as string, // The text of the document
         url: doc.metadata.url as string, // The URL where the document was found
-        hash: doc.metadata.hash as string // The hash of the document content
+        hash: doc.metadata.hash as string, // The hash of the document content
+        timestamp: timestamp as string
       }
     } as Vector;
   } catch (error) {
@@ -109,8 +112,5 @@ async function prepareDocument(page: Page, splitter: DocumentSplitter): Promise<
     };
   });
 }
-
-
-
 
 export default seed;
