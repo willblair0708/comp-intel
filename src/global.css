@@ -53,13 +53,8 @@
 
 .shimmer {
   animation: glimmer 2s infinite linear;
-  background: rgb(82, 82, 91);
-  background: linear-gradient(
-    to right,
-    darkgray 10%,
-    rgb(130, 129, 129) 50%,
-    rgba(124, 123, 123, 0.816) 90%
-  );
+  /* Change the background color to blue */
+  background: blue;
   background-size: 200px 100%;
   background-repeat: no-repeat;
   /* color: transparent; */
