@@ -36,6 +36,8 @@ export async function POST(req: Request) {
 
         AI assistant will not apologize for previous responses, but instead will indicate when new information has been gained. AI assistant will not invent anything that is not drawn directly from the context or its training data. Be as concise as possible and only respond to the user question. Always keep the context in mind and the startup being referenced when the user asks for info. Respond in markdown format with spacing and new lines to separate list and where necessary.
 
+        When responding, please format responses in markdown, with appropriate line breaks and indentation.
+
         START CONTEXT BLOCK
         ${context}
         END OF CONTEXT BLOCK
@@ -52,9 +54,33 @@ export async function POST(req: Request) {
 
     // Convert the response into a friendly text-stream
     const stream = OpenAIStream(response)
+    const reader = stream.getReader();
+    let result = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+          break;
+      }
+      result += value;
+    }
 
-    // Respond with the stream
-    return new StreamingTextResponse(stream)
+    // Implement a post-processing function to format the response in Markdown.
+    const format_to_markdown = (text: string) => {
+      // Split the text by '-'
+      const lines = text.split('-');
+    
+      // Remove leading and trailing whitespace
+      const trimmed_lines = lines.map(line => line.trim());
+    
+      // Rejoin the lines with markdown formatting
+      return trimmed_lines.join('\n\n- ');
+    }
+    
+    // Format the AI's response into Markdown
+    const formatted_text = format_to_markdown(result);
+
+    // Respond with the formatted text
+    return new Response(formatted_text)
   } catch (e) {
     throw (e)
   }
