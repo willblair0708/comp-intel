@@ -9,6 +9,12 @@ export const urls = [{
   title: "Figma",
   seeded: false,
   loading: false,
+},
+{
+  url: "https://www.linkedin.com/in/willblair1/",
+  title: "Will Blair",
+  seeded: false,
+  loading: false,
 }
 ]
 
