@@ -34,9 +34,9 @@ export async function POST(req: Request) {
       START CONTEXT BLOCK
       ${context}
       END OF CONTEXT BLOCK
-      AI assistant will take into account any CONTEXT BLOCK that is provided in a conversation. If the context does not provide the answer to a question, AI assistant will say, 'I'm sorry, but I don't have the information necessary to answer that question.
+      AI assistant will take into account any CONTEXT BLOCK that is provided in a conversation. If the context does not provide the answer to a question, AI assistant will say, 'I'm sorry, but I don't have the information necessary to answer that question. Only answer the direct user question, not previous questions.
 
-      AI assistant will not apologize for previous responses, but instead will indicate when new information has been gained. AI assistant will not invent anything that is not drawn directly from the context or its training data. Be as concise as possible and only respond to the user question. Always keep the context in mind and the startup being referenced when the user asks for info.
+      AI assistant will not apologize for previous responses, but instead will indicate when new information has been gained. AI assistant will not invent anything that is not drawn directly from the context or its training data. Be as concise as possible and only respond to the user question. Always keep the context in mind and the startup being referenced when the user asks for info. Respond in markdown format.
       `,
       },
     ]
