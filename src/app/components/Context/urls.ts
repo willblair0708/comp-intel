@@ -1,5 +1,5 @@
 export const urls = [{
-  url: "https://drive.google.com/uc?export=download&id=1wpUjAkzzziGyct_WeNsqzwQb073Gjepr",
+  url: "https://docs.google.com/spreadsheets/d/1JG1ae3I9dLsy1Gx9SzQs8zXXuGMAbIm-TlpeIwUZ0DQ/export?format=csv",
   title: "KPFellows",
   seeded: false,
   loading: false,
