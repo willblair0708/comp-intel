@@ -94,3 +94,23 @@ async function prepareDocument(page: Page, splitter: DocumentSplitter): Promise<
 }
 
 export default seed;
+
+async function main() {
+  const url = 'https://drive.google.com/uc?export=download&id=1wpUjAkzzziGyct_WeNsqzwQb073Gjepr';
+  const options: SeedOptions = {
+    splittingMethod: 'recursive', // Choose 'recursive' or 'markdown' based on your preference
+    chunkSize: 100, // Choose an appropriate chunk size
+    chunkOverlap: 10 // Choose an appropriate chunk overlap size
+  };
+  const indexName = 'intel'; // Replace with your actual Pinecone index name
+
+  try {
+    const documents = await seed(url, 1, indexName, options);
+    console.log(documents); // Logs the upserted documents
+  } catch (error) {
+    console.error('Error seeding:', error);
+  }
+}
+
+main(); // Calls the main function
+
