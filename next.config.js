@@ -5,12 +5,11 @@ const nextConfig = {
         config.resolve.fallback = {
           fs: false,
           net: false,
-          path: false,
           http: false,
           https: false,
+          path: false,
         };
       }
-  
       return config;
     },
   };
