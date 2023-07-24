@@ -16,6 +16,7 @@
     "@types/react-dom": "18.2.6",
     "ai": "^2.1.25",
     "axios": "^1.4.0",
+    "bottleneck": "^2.19.5",
     "cheerio": "^1.0.0-rc.12",
     "csv-parser": "^3.0.0",
     "encoding": "^0.1.13",
