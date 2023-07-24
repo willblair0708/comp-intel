@@ -3,53 +3,33 @@ import { Document, MarkdownTextSplitter, RecursiveCharacterTextSplitter } from "
 import { utils as PineconeUtils, Vector } from "@pinecone-database/pinecone";
 import md5 from "md5";
 import { getPineconeClient } from "@/utils/pinecone";
-import { Crawler, Page, generateTimestampAsString } from "./crawler";
-import { truncateStringByBytes } from "@/utils/truncateString"
+import { CsvCrawler, Person, generateTimestampAsString } from "./crawler";
+import { truncateStringByBytes } from "@/utils/truncateString";
 
-const { chunkedUpsert, createIndexIfNotExists } = PineconeUtils
+const { chunkedUpsert, createIndexIfNotExists } = PineconeUtils;
 
 interface SeedOptions {
-  splittingMethod: string
-  chunkSize: number
-  chunkOverlap: number
+  splittingMethod: string;
+  chunkSize: number;
+  chunkOverlap: number;
 }
 
-type DocumentSplitter = RecursiveCharacterTextSplitter | MarkdownTextSplitter
+type DocumentSplitter = RecursiveCharacterTextSplitter | MarkdownTextSplitter;
 
-
-async function seed(url: string, limit: number, indexName: string, options: SeedOptions) {
+async function seed(csvUrl: string, limit: number, indexName: string, options: SeedOptions) {
   try {
-    // Initialize the Pinecone client
     const pinecone = await getPineconeClient();
-
-    // Destructure the options object
     const { splittingMethod, chunkSize, chunkOverlap } = options;
-
-    // Create a new Crawler with depth 1 and maximum pages as limit
-    const crawler = new Crawler(1, limit || 100);
-
-    // Crawl the given URL and get the pages
-    
-    const pages = await crawler.crawl(url) as Page[];
-
-    // Choose the appropriate document splitter based on the splitting method
-    const splitter: DocumentSplitter = splittingMethod === 'recursive' ?
-      new RecursiveCharacterTextSplitter({ chunkSize, chunkOverlap }) : new MarkdownTextSplitter({});
-
-    // Prepare documents by splitting the pages
-    const documents = await Promise.all(pages.map(page => prepareDocument(page, splitter)));
-
-    // Create Pinecone index if it does not exist
+    const crawler = new CsvCrawler(limit || 100);
+    const persons = await crawler.crawl(csvUrl) as Person[];
+    const splitter: DocumentSplitter = splittingMethod === 'recursive'
+      ? new RecursiveCharacterTextSplitter({ chunkSize, chunkOverlap })
+      : new MarkdownTextSplitter({});
+    const documents = await Promise.all(persons.map(person => prepareDocument(person, splitter)));
     await createIndexIfNotExists(pinecone!, indexName, 1536);
     const index = pinecone && pinecone.Index(indexName);
-
-    // Get the vector embeddings for the documents
     const vectors = await Promise.all(documents.flat().map(embedDocument));
-
-    // Upsert vectors into the Pinecone index
-    await chunkedUpsert(index!, vectors, url, 10);
-
-    // Return the first document
+    await chunkedUpsert(index!, vectors, csvUrl, 10);
     return documents[0];
   } catch (error) {
     console.error("Error seeding:", error);
@@ -60,54 +40,52 @@ async function seed(url: string, limit: number, indexName: string, options: Seed
 async function embedDocument(doc: Document): Promise<Vector> {
   try {
     const timestamp = generateTimestampAsString();
-    // Generate OpenAI embeddings for the document content
     const embedding = await getEmbeddings(doc.pageContent);
-
-    // Create a hash of the document content
     const hash = md5(doc.pageContent);
-
-    // Return the vector embedding object
     return {
-      id: hash, // The ID of the vector is the hash of the document content
-      values: embedding, // The vector values are the OpenAI embeddings
-      metadata: { // The metadata includes details about the document
-        chunk: doc.pageContent, // The chunk of text that the vector represents
-        text: doc.metadata.text as string, // The text of the document
-        url: doc.metadata.url as string, // The URL where the document was found
-        hash: doc.metadata.hash as string, // The hash of the document content
-        timestamp: timestamp as string
-      }
+      id: hash,
+      values: embedding,
+      metadata: {
+        chunk: doc.pageContent,
+        text: doc.metadata.text as string,
+        hash: doc.metadata.hash as string,
+        Name: doc.metadata.Name as string,
+        Class: doc.metadata.Class as string,
+        URL: doc.metadata.URL as string,
+        Email: doc.metadata.Email as string,
+        Company: doc.metadata.Company as string,
+        Position: doc.metadata.Position as string,
+        Location: doc.metadata.Location as string,
+        Skills: doc.metadata.Skills as string,
+        PastJobTitles: doc.metadata.PastJobTitles as string,
+        Organizations: doc.metadata.Organizations as string,
+        About: doc.metadata.About as string,
+        timestamp: timestamp as string,
+      },
     } as Vector;
   } catch (error) {
-    console.log("Error embedding document: ", error)
-    throw error
+    console.log("Error embedding document: ", error);
+    throw error;
   }
 }
 
-async function prepareDocument(page: Page, splitter: DocumentSplitter): Promise<Document[]> {
-  // Get the content of the page
-  const pageContent = page.content;
-
-  // Split the documents using the provided splitter
+async function prepareDocument(person: Person, splitter: DocumentSplitter): Promise<Document[]> {
+  const pageContent = `${person.Name} ${person.Class} ${person.URL} ${person.Email} ${person.Company} ${person.Position} ${person.Location} ${person.Skills} ${person.PastJobTitles} ${person.Organizations} ${person.About}`;
   const docs = await splitter.splitDocuments([
     new Document({
       pageContent,
       metadata: {
-        url: page.url,
-        // Truncate the text to a maximum byte length
-        text: truncateStringByBytes(pageContent, 36000)
+        text: truncateStringByBytes(pageContent, 36000),
+        ...person
       },
     }),
   ]);
-
-  // Map over the documents and add a hash to their metadata
   return docs.map((doc: Document) => {
     return {
       pageContent: doc.pageContent,
       metadata: {
         ...doc.metadata,
-        // Create a hash of the document content
-        hash: md5(doc.pageContent)
+        hash: md5(doc.pageContent),
       },
     };
   });

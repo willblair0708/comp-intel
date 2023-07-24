@@ -1,20 +1,7 @@
 export const urls = [{
-  url: "https://aircall.io/",
-  title: "Aircall",
-  seeded: false,
-  loading: false,
-},
-{
-  url: "https://www.figma.com/",
-  title: "Figma",
-  seeded: false,
-  loading: false,
-},
-{
-  url: "https://www.linkedin.com/in/willblair1/",
-  title: "Will Blair",
+  url: "https://drive.google.com/uc?export=download&id=1wpUjAkzzziGyct_WeNsqzwQb073Gjepr",
+  title: "KPFellows",
   seeded: false,
   loading: false,
 }
 ]
-
