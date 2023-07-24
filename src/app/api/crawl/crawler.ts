@@ -1,4 +1,4 @@
-import axios from 'axios';
+import fetch from 'node-fetch';
 import Papa from 'papaparse';
 
 interface Page {
@@ -17,8 +17,11 @@ class Crawler {
 
   private async fetchPage(url: string): Promise<string> {
     try {
-      const response = await axios.get(url);
-      return response.data;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
+      }
+      return await response.text();
     } catch (error) {
       console.error(`Failed to fetch ${url}: ${error}`);
       return '';
