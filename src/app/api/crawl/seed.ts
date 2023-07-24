@@ -62,32 +62,35 @@ async function prepareDocument(page: Page, splitter: DocumentSplitter): Promise<
 
   // Loop over each object in the page content array
   for (const obj of page.content) {
-    // Convert the object to a string
-    const objStr = JSON.stringify(obj);
+    // Treat each key-value pair in the object as a separate document
+    for (const key in obj) {
+      // Convert the key-value pair to a string
+      const keyValueStr = `${key}: ${obj[key]}`;
 
-    // Split the document
-    const docs = await splitter.splitDocuments([
-      new Document({
-        pageContent: objStr,
-        metadata: {
-          url: page.url,
-          text: truncateStringByBytes(objStr, 36000)
-        },
-      }),
-    ]);
-
-    // Add a hash to the document metadata and add it to the documents array
-    documents.push(
-      ...docs.map((doc: Document) => {
-        return {
-          pageContent: doc.pageContent,
+      // Split the document
+      const docs = await splitter.splitDocuments([
+        new Document({
+          pageContent: keyValueStr,
           metadata: {
-            ...doc.metadata,
-            hash: md5(doc.pageContent)
+            url: page.url,
+            text: truncateStringByBytes(keyValueStr, 36000)
           },
-        };
-      })
-    );
+        }),
+      ]);
+
+      // Add a hash to the document metadata and add it to the documents array
+      documents.push(
+        ...docs.map((doc: Document) => {
+          return {
+            pageContent: doc.pageContent,
+            metadata: {
+              ...doc.metadata,
+              hash: md5(doc.pageContent)
+            },
+          };
+        })
+      );
+    }
   }
 
   return documents;
