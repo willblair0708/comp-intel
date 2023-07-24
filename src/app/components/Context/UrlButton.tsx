@@ -20,12 +20,20 @@ interface IURLButtonProps {
 const UrlButton: FC<IURLButtonProps> = ({ entry, onClick }) => {
   const handleClick = async () => {
     try {
-      const response = await axios.post('/api/crawl/', { url: entry.url });
+      const response = await axios.post('/api/crawl/', { 
+        url: entry.url, 
+        options: {
+          splittingMethod: 'recursive',  // provide appropriate value
+          chunkSize: 1000,               // provide appropriate value
+          chunkOverlap: 200              // provide appropriate value
+        }
+      });
       console.log(response.data);
     } catch (error) {
       console.error(error);
     }
-  };
+};
+
 
   return (
     <div key={`${entry.url}-${entry.seeded}`} className="pr-2 lg:flex-grow">
