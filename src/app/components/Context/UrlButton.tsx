@@ -20,7 +20,7 @@ interface IURLButtonProps {
 const UrlButton: FC<IURLButtonProps> = ({ entry, onClick }) => {
   const handleClick = async () => {
     try {
-      const response = await axios.post('https://comp-intel-9prm8z44e-willblair0708.vercel.app/api/crawl/', { url: entry.url });
+      const response = await axios.post('https://comp-intel-git-main-willblair0708.vercel.app/api/crawl/', { url: entry.url });
       console.log(response.data);
     } catch (error) {
       console.error(error);
