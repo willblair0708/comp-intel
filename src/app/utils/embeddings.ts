@@ -1,4 +1,4 @@
-
+import Bottleneck from 'bottleneck';
 import { OpenAIApi, Configuration } from "openai-edge";
 
 const config = new Configuration({
@@ -6,12 +6,17 @@ const config = new Configuration({
 })
 const openai = new OpenAIApi(config)
 
+// Create a new limiter with a desired rate
+const limiter = new Bottleneck({
+  minTime: 200, // Let's say we want to wait at least 200ms between API calls
+});
+
 export async function getEmbeddings(input: string) {
   try {
-    const response = await openai.createEmbedding({
+    const response = await limiter.schedule(() => openai.createEmbedding({
       model: "text-embedding-ada-002",
       input: input.replace(/\n/g, ' ')
-    })
+    }));
 
     const result = await response.json();
     return result.data[0].embedding as number[]

@@ -5,7 +5,6 @@ import md5 from "md5";
 import { getPineconeClient } from "@/utils/pinecone";
 import { Crawler, Page } from "./crawler";
 import { truncateStringByBytes } from "@/utils/truncateString"
-import { chunk } from 'lodash'; // lodash is a utility library that provides helpful functions like "chunk"
 
 const { chunkedUpsert, createIndexIfNotExists } = PineconeUtils
 
@@ -29,18 +28,7 @@ async function seed(url: string, limit: number, indexName: string, options: Seed
     const documents = await Promise.all(pages.map(page => prepareDocument(page, splitter)));
     await createIndexIfNotExists(pinecone!, indexName, 1536);
     const index = pinecone && pinecone.Index(indexName);
-    
-    // Chunk the documents into smaller groups to respect API rate limits
-    const documentChunks = chunk(documents.flat(), 20); // Adjust the chunk size as needed
-
-    // Process each chunk separately
-    const vectorChunks: Vector[][] = await Promise.all(documentChunks.map(async (documentChunk) => {
-      return await Promise.all(documentChunk.map(embedDocument));
-    }));
-
-    // Flatten the chunks back into a single array
-    const vectors: Vector[] = ([] as Vector[]).concat(...vectorChunks);
-    
+    const vectors = await Promise.all(documents.flat().map(embedDocument));
     await chunkedUpsert(index!, vectors, '', 10);
     return documents[0];
   } catch (error) {
