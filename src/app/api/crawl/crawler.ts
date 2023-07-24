@@ -7,6 +7,7 @@ interface Page {
 }
 
 class Crawler {
+  // Modify the crawl method to accept the Google Sheets URL directly
   async crawl(url: string): Promise<Page> {
     const csv = await this.fetchPage(url);
     return {
