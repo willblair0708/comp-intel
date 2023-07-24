@@ -40,6 +40,7 @@
     "vue": "^3.3.4"
   },
   "devDependencies": {
-    "@types/md5": "^2.3.2"
+    "@types/md5": "^2.3.2",
+    "@types/papaparse": "^5.3.7"
   }
 }
