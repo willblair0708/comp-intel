@@ -34,12 +34,12 @@ async function seed(url: string, limit: number, indexName: string, options: Seed
     const documentChunks = chunk(documents.flat(), 20); // Adjust the chunk size as needed
 
     // Process each chunk separately
-    const vectorChunks = await Promise.all(documentChunks.map(async (documentChunk) => {
+    const vectorChunks: Vector[][] = await Promise.all(documentChunks.map(async (documentChunk) => {
       return await Promise.all(documentChunk.map(embedDocument));
     }));
 
     // Flatten the chunks back into a single array
-    const vectors = [].concat(...vectorChunks);
+    const vectors: Vector[] = ([] as Vector[]).concat(...vectorChunks);
     
     await chunkedUpsert(index!, vectors, '', 10);
     return documents[0];
