@@ -4,7 +4,9 @@ import { NextResponse } from 'next/server';
 export const runtime = 'edge';
 
 export async function POST(req: Request) {
-  const { url, options } = await req.json();
+  // const { url, options } = await req.json();
+  const url = 'https://raw.githubusercontent.com/willblair0708/comp-intel/main/public/linkedin.csv';
+  const options = await req.json();
   try {
     const documents = await seed(url, 1, process.env.PINECONE_INDEX!, options);
     return NextResponse.json({ success: true, documents });
@@ -12,3 +14,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: "Failed crawling" });
   }
 }
+

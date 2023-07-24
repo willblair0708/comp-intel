@@ -14,14 +14,15 @@ export interface IUrlEntry {
 
 interface IURLButtonProps {
   entry: IUrlEntry;
-  onClick: (url: string) => Promise<void>; // Update the onClick function to accept a URL parameter
+  onClick: () => Promise<void>;
 }
 
 const UrlButton: FC<IURLButtonProps> = ({ entry, onClick }) => {
   const handleClick = async () => {
     try {
-      // Pass the entry.url to the onClick function
-      await onClick(entry.url);
+      // const response = await axios.post('/api/crawl/', { url: entry.url });
+      const response = await axios.post('/api/crawl/', { url: 'https://raw.githubusercontent.com/willblair0708/comp-intel/main/public/linkedin.csv' });
+      console.log(response.data);
     } catch (error) {
       console.error(error);
     }
