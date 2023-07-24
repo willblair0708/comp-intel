@@ -14,26 +14,18 @@ export interface IUrlEntry {
 
 interface IURLButtonProps {
   entry: IUrlEntry;
-  onClick: () => Promise<void>;
+  onClick: (url: string) => Promise<void>; // Update the onClick function to accept a URL parameter
 }
 
 const UrlButton: FC<IURLButtonProps> = ({ entry, onClick }) => {
   const handleClick = async () => {
     try {
-      const response = await axios.post('/api/crawl/', { 
-        url: entry.url, 
-        options: {
-          splittingMethod: 'recursive',  // provide appropriate value
-          chunkSize: 1000,               // provide appropriate value
-          chunkOverlap: 200              // provide appropriate value
-        }
-      });
-      console.log(response.data);
+      // Pass the entry.url to the onClick function
+      await onClick(entry.url);
     } catch (error) {
       console.error(error);
     }
-};
-
+  };
 
   return (
     <div key={`${entry.url}-${entry.seeded}`} className="pr-2 lg:flex-grow">
