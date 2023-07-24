@@ -13,8 +13,13 @@ export async function getEmbeddings(input: string) {
       input: input.replace(/\n/g, ' ')
     })
 
-    const result = await response.json();
-    return result.data[0].embedding as number[]
+    // Wait for 1 second before returning the result
+    return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        const result = await response.json();
+        resolve(result.data[0].embedding as number[]);
+      }, 1000);
+    });
 
   } catch (e) {
     console.log("Error calling OpenAI embedding API: ", e);
