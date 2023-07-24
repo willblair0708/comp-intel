@@ -29,7 +29,7 @@ async function seed(url: string, limit: number, indexName: string, options: Seed
     await createIndexIfNotExists(pinecone!, indexName, 1536);
     const index = pinecone && pinecone.Index(indexName);
     const vectors = await Promise.all(documents.flat().map(embedDocument));
-    await chunkedUpsert(index!, vectors, '', 10);
+    await chunkedUpsert(index!, vectors, 'KPFellows', 10);
     return documents[0];
   } catch (error) {
     console.error("Error seeding:", error);
